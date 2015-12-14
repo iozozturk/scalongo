@@ -1,10 +1,12 @@
 package models
 
+import java.util.UUID
+
 /**
   * Created by ismet on 06/12/15.
   */
 case class User(
-                 _id: String,
+                 _id: UUID,
                  name: String,
                  email: String,
                  phoneNumber: String,
@@ -12,3 +14,10 @@ case class User(
                  password: String,
                  timestamp: Long
                )
+
+object User {
+
+  import play.api.libs.json.Json
+
+  implicit val userFormat = Json.format[User]
+}

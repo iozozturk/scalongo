@@ -1,2 +1,2 @@
-error.passwordsDontMatch = "Passwords don't match"
-error.password.minLength = "Password should be at least 6 characters"
+error.passwordsDontMatch = Passwords don't match
+error.password.minLength = Password should be at least 6 characters

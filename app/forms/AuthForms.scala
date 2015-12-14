@@ -16,7 +16,7 @@ object AuthForms {
     mapping(
       "email" -> email,
       "username" -> nonEmptyText,
-      "password" -> nonEmptyText.verifying(Messages("error.password.minLength"), password => password.length < 6),
+      "password" -> nonEmptyText.verifying(Messages("error.password.minLength"), password => password.length >= 6),
       "name" -> nonEmptyText
     )
     (SignupData.apply)(SignupData.unapply))
