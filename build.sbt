@@ -8,7 +8,7 @@ scalaVersion := "2.11.7"
 
 routesGenerator := InjectedRoutesGenerator
 
-libraryDependencies ++= Seq(jdbc, cache, ws, specs2 % Test)
+libraryDependencies ++= Seq(jdbc, cache, ws, filters, specs2 % Test)
 
 unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/test")
 
