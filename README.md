@@ -1,13 +1,11 @@
-[![Build Status](https://travis-ci.org/iozozturk/scalongo.svg)](https://travis-ci.org/iozozturk/scalongo)
+# Scalongo  [![Build Status](https://travis-ci.org/iozozturk/scalongo.svg)](https://travis-ci.org/iozozturk/scalongo)
 
-# Scalongo #
-
-This is a sample seed project showcasing new scala driver for MongoDb on Play Framework 2.4.X
+This is a sample seed project showcasing new scala driver for MongoDb on Play Framework 2.4.6
 
 ### What is this repository for? ###
 
 * Bootstrap your Play Application with MongoDb
-* 2.4.6
+* Play Framework 2.4.6
 
 ### How do I get set up? ###
 
