@@ -1,10 +1,10 @@
 language: scala
 
-  scala:
-  - 2.11.6
+scala:
+    - 2.11.7
 
-  jdk:
+jdk:
     - oraclejdk8
 
-  script:
+script:
     - sbt compile
