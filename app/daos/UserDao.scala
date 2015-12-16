@@ -34,15 +34,13 @@ class MongoUserDao extends UserDao {
   }
 
   override def update(user: User): Observable[UpdateResult] = {
-    users.updateOne(equal("_id", user._id), Document(user.toString))
+    users.updateOne(equal("_id", user._id), Document(Json.toJson(user).toString))
   }
 
   override def save(user: User): Observable[Completed] = {
     val userJson: String = Json.toJson(user).toString
     val doc: Document = Document(userJson)
-
-    Logger.debug(s"Writing user to db: $userJson")
-
     users.insertOne(doc)
   }
+
 }

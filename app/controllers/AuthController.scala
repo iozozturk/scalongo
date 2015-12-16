@@ -5,12 +5,11 @@ import java.util.UUID
 import com.google.inject.Inject
 import forms.AuthForms
 import models.User
-import org.mongodb.scala.Completed
-import play.Logger
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
 import play.api.i18n.MessagesApi
-import play.api.mvc.{BodyParsers, Action, Controller}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.mvc.{Action, BodyParsers, Controller}
 import services.UserService
 
 /**
@@ -19,10 +18,10 @@ import services.UserService
 class AuthController @Inject()(userService: UserService,
                                val messagesApi: MessagesApi) extends Controller {
 
-  def signup = Action (BodyParsers.parse.json) { implicit request =>
+  def signup = Action.async(BodyParsers.parse.json) { implicit request =>
     AuthForms.SignupForm.bindFromRequest().fold(
       errorForm => {
-        BadRequest(errorForm.errorsAsJson)
+        scala.concurrent.Future { BadRequest(errorForm.errorsAsJson) }
       },
       signupForm => {
         val user = User(UUID.randomUUID(),
@@ -33,10 +32,9 @@ class AuthController @Inject()(userService: UserService,
           signupForm.password,
           System.currentTimeMillis())
 
-        userService.save(user).subscribe((test: Completed) => {
-          Logger.info("Signup success!")
+        userService.save(user).toFuture().map((_)=>{
+          Ok
         })
-        Ok
       }
     )
   }
