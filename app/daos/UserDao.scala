@@ -3,15 +3,12 @@ package daos
 
 import java.util.UUID
 
-import com.google.inject.ImplementedBy
+import com.google.inject.{Inject, Singleton, ImplementedBy}
 import models.User
-
 import org.mongodb.scala._
-import org.mongodb.scala.result.UpdateResult
 import org.mongodb.scala.model.Filters._
-import play.Logger
+import org.mongodb.scala.result.UpdateResult
 import play.api.libs.json.Json
-
 import services.Mongo
 
 /**
@@ -26,8 +23,9 @@ trait UserDao {
   def save(user: User): Observable[Completed]
 }
 
-class MongoUserDao extends UserDao {
-  private val users: MongoCollection[Document] = Mongo.db.getCollection("user")
+@Singleton
+class MongoUserDao @Inject()(mongo: Mongo) extends UserDao {
+  private val users: MongoCollection[Document] = mongo.db.getCollection("user")
 
   override def find(userId: UUID): Observable[Document] = {
     users.find(equal("_id", userId)).first()
