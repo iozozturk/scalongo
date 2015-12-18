@@ -15,7 +15,7 @@ class InitSetup @Inject()(mongo: Mongo) {
   def defineIndexes(): Unit = {
     val options: IndexOptions = new IndexOptions().unique(true)
     mongo.db.getCollection("user").createIndex(ascending("username"), options).subscribe((s: String) => {
-      Logger.warn("User index created")
+      Logger.info("User index created")
     })
   }
 

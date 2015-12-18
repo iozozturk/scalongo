@@ -2,7 +2,9 @@ package controllers
 
 import java.util.UUID
 
+import com.github.t3hnar.bcrypt._
 import com.google.inject.Inject
+import com.mongodb.MongoWriteException
 import forms.AuthForms
 import models.User
 import play.api.Play.current
@@ -12,7 +14,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.mvc.{Action, BodyParsers, Controller}
 import services.UserService
 
-import com.github.t3hnar.bcrypt._
+import scala.concurrent.Future
 
 /**
   * Created by ismet on 13/12/15.
@@ -23,7 +25,7 @@ class AuthController @Inject()(userService: UserService,
   def signup = Action.async(BodyParsers.parse.json) { implicit request =>
     AuthForms.SignupForm.bindFromRequest().fold(
       errorForm => {
-        scala.concurrent.Future {
+        Future {
           BadRequest(errorForm.errorsAsJson)
         }
       },
@@ -38,7 +40,12 @@ class AuthController @Inject()(userService: UserService,
 
         userService.save(user).toFuture().map((_) => {
           Ok
-        })
+        }).recoverWith {
+          case e: MongoWriteException => Future {
+            Forbidden
+          }
+        }
+
       }
     )
   }
