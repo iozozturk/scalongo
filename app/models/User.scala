@@ -9,7 +9,7 @@ case class User(
                  _id: UUID,
                  name: String,
                  email: String,
-                 phoneNumber: String,
+                 phoneNumber: Option[String],
                  username: String,
                  password: String,
                  timestamp: Long

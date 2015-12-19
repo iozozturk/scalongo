@@ -10,4 +10,6 @@ GET         /assets/*file        controllers.Assets.at(path="/public", file)
 
 POST        /users               controllers.AuthController.signup
 
+#Auth
+#POST        /login               controllers.AuthController.login
     

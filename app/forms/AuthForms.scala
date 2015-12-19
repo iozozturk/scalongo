@@ -12,7 +12,7 @@ object AuthForms {
   case class SignupData(email: String, username: String, password: String, name: String)
 
   // Signup
-  def SignupForm(implicit messages: Messages) :Form[SignupData]  = Form(
+  def signupForm(implicit messages: Messages) :Form[SignupData]  = Form(
     mapping(
       "email" -> email,
       "username" -> nonEmptyText,
@@ -22,12 +22,11 @@ object AuthForms {
     (SignupData.apply)(SignupData.unapply))
 
   // Sign in
-  case class SignInData(email:String, password:String, rememberMe:Boolean)
-  val signInForm = Form(mapping(
-    "email" -> email,
-    "password" -> nonEmptyText,
-    "rememberMe" -> boolean
-  )(SignInData.apply)(SignInData.unapply))
+  case class LoginData(username:String, password:String)
+  val loginForm = Form(mapping(
+    "username" -> nonEmptyText,
+    "password" -> nonEmptyText
+  )(LoginData.apply)(LoginData.unapply))
 
   // Start password recovery
   val emailForm = Form(single("email" -> email))

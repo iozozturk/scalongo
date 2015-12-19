@@ -7,12 +7,15 @@ import com.google.inject.Inject
 import com.mongodb.MongoWriteException
 import forms.AuthForms
 import models.User
+import org.mongodb.scala.Observable
+import org.mongodb.scala.bson.collection.immutable.Document
 import play.api.Play.current
 import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.mvc.{Action, BodyParser, Controller}
+import play.api.libs.json.{JsResult, Json}
+import play.api.mvc._
 import services.UserService
 
 import scala.concurrent.Future
@@ -23,7 +26,7 @@ import scala.concurrent.Future
 class AuthController @Inject()(userService: UserService,
                                val messagesApi: MessagesApi) extends Controller {
 
-  def signup = Action.async(BodyParser { implicit request => parse.form(AuthForms.SignupForm, onErrors = { errorForm: Form[AuthForms.SignupData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
+  def signup = Action.async(BodyParser { implicit request => parse.form(AuthForms.signupForm, onErrors = { errorForm: Form[AuthForms.SignupData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
 
     val signupData = request.body
 
@@ -45,7 +48,20 @@ class AuthController @Inject()(userService: UserService,
 
   }
 
-  def login = TODO
+//  def login = Action.async(BodyParser { implicit request => parse.form(AuthForms.loginForm, onErrors = { errorForm: Form[AuthForms.LoginData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
+//
+//    val loginData = request.body
+//    userService.find(loginData.username).head().map((userDoc:Document) =>{
+//      val userJs: JsResult[User] = Json.fromJson[User](Json.parse(userDoc.toJson()))
+//      val user :User = userJs.get
+//      Ok
+//
+//    })
+//       val result: JsResult[User] = Json.fromJson[User](Json.parse(userDoc.toJson()))
+
+
+
+//  }
 
   def logout = TODO
 

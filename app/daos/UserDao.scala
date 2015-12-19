@@ -18,6 +18,8 @@ import services.Mongo
 trait UserDao {
   def find(userId: UUID): Observable[Document]
 
+  def find(username: String): Observable[Document]
+
   def update(user: User): Observable[UpdateResult]
 
   def save(user: User): Observable[Completed]
@@ -29,6 +31,10 @@ class MongoUserDao @Inject()(mongo: Mongo) extends UserDao {
 
   override def find(userId: UUID): Observable[Document] = {
     users.find(equal("_id", userId)).first()
+  }
+
+  override def find(username: String): Observable[Document] = {
+    users.find(equal("username", username)).first()
   }
 
   override def update(user: User): Observable[UpdateResult] = {
