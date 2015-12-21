@@ -4,6 +4,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import models.Session
 import org.mongodb.scala._
 import org.mongodb.scala.model.Filters._
+import play.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import services.Mongo
@@ -49,9 +50,9 @@ class MongoSessionDao @Inject()(mongo: Mongo) extends SessionDao {
       doc.get("_id").get.asString().getValue,
       doc.get("userId").get.asString().getValue,
       doc.get("ip").get.asString().getValue,
-      doc.get("useragent").get.asString().getValue,
+      doc.get("userAgent").get.asString().getValue,
       doc.get("timestamp").get.asInt64().getValue,
-      doc.get("lastactivity").get.asInt64().getValue
+      doc.get("lastActivity").get.asInt64().getValue
     )
   }
 

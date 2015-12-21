@@ -2,6 +2,7 @@ package controllers
 
 import java.util.UUID
 
+import actions.SecureAction
 import com.github.t3hnar.bcrypt._
 import com.google.inject.Inject
 import com.mongodb.MongoWriteException
@@ -22,6 +23,7 @@ import scala.concurrent.Future
   */
 class AuthController @Inject()(userService: UserService,
                                sessionService: SessionService,
+                               secureAction: SecureAction,
                                val messagesApi: MessagesApi) extends Controller {
 
   def signup = Action.async(BodyParser { implicit request => parse.form(AuthForms.signupForm, onErrors = { errorForm: Form[AuthForms.SignupData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
@@ -62,14 +64,20 @@ class AuthController @Inject()(userService: UserService,
           currentTimeMillis
         )
         sessionService.save(session)
-        Ok(session._id)
+        Ok(sessionId).withCookies(Cookie("sessionId", sessionId))
       } else {
         Unauthorized
       }
     })
   }
 
-  def logout = TODO
+  def securedSampleAction = secureAction { implicit request =>
+    Ok
+  }
+
+  def logout = secureAction { implicit request =>
+    Ok.discardingCookies(DiscardingCookie("sessionId"))
+  }
 
 
 }
