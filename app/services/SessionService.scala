@@ -22,4 +22,7 @@ class SessionService @Inject()(sessionDao: SessionDao,
 
   def save(session: Session) = sessionDao.save(session)
 
+  def delete(sessionId: String) = sessionDao.delete(sessionId)
+
+  def updateLastActivity(sessionId: String) = sessionDao.updateLastActivity(sessionId)
 }

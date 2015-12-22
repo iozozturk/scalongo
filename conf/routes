@@ -13,4 +13,4 @@ POST        /users               controllers.AuthController.signup
 #Auth
 POST        /login               controllers.AuthController.login
 POST        /logout              controllers.AuthController.logout
-POST        /secure              controllers.AuthController.securedSampleAction
+GET         /secure              controllers.AuthController.securedSampleAction

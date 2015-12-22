@@ -1,10 +1,12 @@
 package daos
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
+import com.mongodb.client.result.UpdateResult
 import models.Session
 import org.mongodb.scala._
 import org.mongodb.scala.model.Filters._
-import play.Logger
+import org.mongodb.scala.model.Updates._
+import org.mongodb.scala.result.DeleteResult
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json.Json
 import services.Mongo
@@ -21,6 +23,10 @@ trait SessionDao {
   def findByUserId(userId: String): Future[Session]
 
   def save(session: Session): Future[Completed]
+
+  def delete(sessionId: String): Future[DeleteResult]
+
+  def updateLastActivity(sessionId: String): Future[UpdateResult]
 }
 
 @Singleton
@@ -43,6 +49,14 @@ class MongoSessionDao @Inject()(mongo: Mongo) extends SessionDao {
     val sessionJson: String = Json.toJson(session).toString
     val doc: Document = Document(sessionJson)
     sessions.insertOne(doc).head()
+  }
+
+  override def delete(sessionId: String): Future[DeleteResult] = {
+    sessions.deleteOne(equal("_id", sessionId)).head()
+  }
+
+  override def updateLastActivity(sessionId: String): Future[UpdateResult] = {
+    sessions.updateOne(equal("_id", sessionId), set("lastActivity", System.currentTimeMillis())).head()
   }
 
   private def documentToSession(doc: Document): Session = {

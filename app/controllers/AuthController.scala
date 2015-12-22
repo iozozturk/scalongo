@@ -76,6 +76,7 @@ class AuthController @Inject()(userService: UserService,
   }
 
   def logout = secureAction { implicit request =>
+    sessionService.delete(request.sessionId)
     Ok.discardingCookies(DiscardingCookie("sessionId"))
   }
 
