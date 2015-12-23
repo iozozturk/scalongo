@@ -1,8 +1,8 @@
-name := "durt"
+name := "scalongo"
 
 version := "1.0"
 
-lazy val `durt` = (project in file(".")).enablePlugins(PlayScala)
+lazy val `scalongo` = (project in file(".")).enablePlugins(PlayScala)
 
 scalaVersion := "2.11.7"
 

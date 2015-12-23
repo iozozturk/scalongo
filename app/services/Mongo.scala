@@ -16,7 +16,7 @@ class Mongo @Inject()(applicationLifecycle: ApplicationLifecycle) {
 
   val client: MongoClient = MongoClient()
 
-  val db: MongoDatabase = client.getDatabase("durt")
+  val db: MongoDatabase = client.getDatabase("scalongo")
 
   applicationLifecycle.addStopHook(() => {
     Logger.warn("Closing Mongo connection")

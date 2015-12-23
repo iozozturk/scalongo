@@ -68,7 +68,11 @@ class AuthController @Inject()(userService: UserService,
       } else {
         Unauthorized
       }
-    })
+    }).recoverWith {
+      case e: IllegalStateException => Future {
+        Forbidden
+      }
+    }
   }
 
   def securedSampleAction = secureAction { implicit request =>

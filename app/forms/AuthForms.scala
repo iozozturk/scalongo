@@ -28,13 +28,4 @@ object AuthForms {
     "password" -> nonEmptyText
   )(LoginData.apply)(LoginData.unapply))
 
-  // Start password recovery
-  val emailForm = Form(single("email" -> email))
-
-  // Password recovery
-  def resetPasswordForm(implicit messages:Messages) = Form(tuple(
-    "password1" -> nonEmptyText.verifying(Messages("error.password.minLength"),password => password.length < 6),
-    "password2" -> nonEmptyText
-  ).verifying(Messages("error.passwordsDontMatch"), password => password._1 == password._2))
-
 }
