@@ -19,9 +19,8 @@ This is a sample seed project showcasing new scala driver for MongoDb on Play Fr
 
 ### Sample Requests ###
 
-add **Content-Type:**application/json as header at **POST** requests
-
 * **POST** localhost:9000/users
+* **Content-Type:**application/json
 ```
 {
   "username" : "ismet",
@@ -32,6 +31,7 @@ add **Content-Type:**application/json as header at **POST** requests
 ```
 
 * **POST** localhost:9000/login
+* **Content-Type:**application/json
 ```
 {
   "username" : "ismet",
