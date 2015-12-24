@@ -6,6 +6,8 @@ This is a sample seed project showcasing new scala driver for MongoDb on Play Fr
 
 * Bootstrap your Play Application with MongoDb
 * Play Framework 2.4.6
+* No frontend implemented
+* REST backend for all kind of your SPA or mobile applications
 
 ### How do I get set up? ###
 
@@ -14,3 +16,45 @@ This is a sample seed project showcasing new scala driver for MongoDb on Play Fr
 * Make changes at application.conf if necessary
 * run "./activator run" command at root directory
 * navigate to localhost:9000 on your browser
+
+### Sample Requests ###
+
+add **Content-Type:**application/json as header at **POST** requests
+
+* **POST** localhost:9000/users
+```
+{
+  "username" : "ismet",
+  "password" : "123456",
+  "email" : "ismet@ismet.com",
+  "name" : "ismet"
+}
+```
+
+* **POST** localhost:9000/login
+```
+{
+  "username" : "ismet",
+  "password" : "123456"
+}
+```
+
+* **GET** localhost:9000/secure
+
+* **POST** localhost:9000/logout
+
+### License ###
+
+Copyright 2015 İsmet Özöztürk
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
