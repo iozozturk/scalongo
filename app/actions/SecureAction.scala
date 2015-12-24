@@ -21,13 +21,17 @@ class SecureAction @Inject()(sessionService: SessionService,
                              userService: UserService) extends ActionBuilder[UserRequest] with ActionRefiner[Request, UserRequest] {
 
   override protected def refine[A](request: Request[A]): Future[Either[Result, UserRequest[A]]] = {
-    val sessionId: String = request.cookies.get("sessionId").getOrElse[Cookie](Cookie("sessionId", "n/a")).value
 
-    sessionService
-      .findUserBySessionId(sessionId)
-      .map(u => Right(new UserRequest[A](u, request)))
-      .recover {
-        case NonFatal(_) => Left[Result, UserRequest[A]](Results.Forbidden)
-      }
+    request.cookies.get("sessionId").map { c: Cookie =>
+      sessionService
+        .findUserBySessionId(c.value)
+        .map(u => Right(new UserRequest[A](u, request)))
+        .recover {
+          case NonFatal(_) => Left(Results.Forbidden)
+        }
+    }.getOrElse(Future {
+      Left(Results.Forbidden)
+    })
+
   }
 }
