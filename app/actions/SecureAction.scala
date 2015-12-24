@@ -7,6 +7,7 @@ import play.api.mvc._
 import services.{SessionService, UserService}
 
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 /**
   * Created by ismet on 21/12/15.
@@ -26,7 +27,7 @@ class SecureAction @Inject()(sessionService: SessionService,
       .findUserBySessionId(sessionId)
       .map(u => Right(new UserRequest[A](u, request)))
       .recover {
-        case _ => Left[Result, UserRequest[A]](Results.Forbidden)
+        case NonFatal(_) => Left[Result, UserRequest[A]](Results.Forbidden)
       }
   }
 }
