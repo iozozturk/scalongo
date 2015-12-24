@@ -19,7 +19,7 @@ This is a sample seed project showcasing new scala driver for MongoDb on Play Fr
 
 ### Sample Requests ###
 
-* **POST** localhost:9000/users
+* **POST** localhost:9000/signup
 * **Content-Type:**application/json
 ```
 {
