@@ -7,4 +7,4 @@ jdk:
     - oraclejdk8
 
 script:
-    - sbt compile
+    - sbt compile test
