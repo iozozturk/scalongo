@@ -2,6 +2,8 @@
 
 This is a sample seed project showcasing new scala driver for MongoDb on Play Framework 2.4.6
 
+You may also check **scalongo-android** project (seed android application client) compatible with scalongo
+
 ### What is this repository for? ###
 
 * Bootstrap your Play Application with MongoDb
