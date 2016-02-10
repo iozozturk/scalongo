@@ -13,6 +13,7 @@ import play.api.data.Form
 import play.api.i18n.Messages.Implicits._
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.api.libs.json.Json
 import play.api.mvc._
 import services.{SessionService, UserService}
 
@@ -44,14 +45,16 @@ class AuthController @Inject()(userService: UserService,
       case e: MongoWriteException => Future {
         Forbidden
       }
+      case _ => Future {
+        Forbidden
+      }
     }
 
   }
 
   def login = Action.async(BodyParser { implicit request => parse.form(AuthForms.loginForm, onErrors = { errorForm: Form[AuthForms.LoginData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
-
     val loginData = request.body
-    userService.findByUsername(loginData.username).map((user: User) => {
+    userService.findByEmail(loginData.username).map((user: User) => {
       if (loginData.password.isBcrypted(user.password)) {
         val sessionId: String = UUID.randomUUID().toString
         val currentTimeMillis: Long = System.currentTimeMillis()
@@ -64,7 +67,8 @@ class AuthController @Inject()(userService: UserService,
           currentTimeMillis
         )
         sessionService.save(session)
-        Ok(sessionId).withCookies(Cookie("sessionId", sessionId))
+        val response = Map("sessionId" -> sessionId)
+        Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
       } else {
         Unauthorized
       }

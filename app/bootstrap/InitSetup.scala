@@ -18,9 +18,9 @@ class InitSetup @Inject()(mongo: Mongo) {
 
   def defineIndexes(): Unit = {
     val options: IndexOptions = new IndexOptions().unique(true)
-    mongo.db.getCollection("user").createIndex(ascending("username"), options).subscribe((s: String) => {
-      Logger.info("username index created on User collection")
-    })
+//    mongo.db.getCollection("user").createIndex(ascending("username"), options).subscribe((s: String) => {
+//      Logger.info("username index created on User collection")
+//    })
     mongo.db.getCollection("user").createIndex(ascending("email"), options).subscribe((s: String) => {
       Logger.info("email index created on User collection")
     })

@@ -17,6 +17,8 @@ import scala.concurrent.Future
   */
 @ImplementedBy(classOf[MongoUserDao])
 trait UserDao {
+  def findByEmail(email: String): Future[User]
+
   def find(userId: String): Future[User]
 
   def findByUsername(username: String): Future[User]
@@ -32,6 +34,12 @@ class MongoUserDao @Inject()(mongo: Mongo) extends UserDao {
 
   override def find(userId: String): Future[User] = {
     users.find(equal("_id", userId)).head().map[User]((doc: Document) => {
+      documentToUser(doc)
+    })
+  }
+
+  override def findByEmail(email: String): Future[User] = {
+    users.find(equal("email", email)).head().map[User]((doc: Document) => {
       documentToUser(doc)
     })
   }
@@ -62,5 +70,4 @@ class MongoUserDao @Inject()(mongo: Mongo) extends UserDao {
       doc.get("timestamp").get.asInt64().getValue
     )
   }
-
 }

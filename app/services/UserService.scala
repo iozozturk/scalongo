@@ -15,6 +15,8 @@ class UserService @Inject()(userDao: UserDao) {
 
   def findByUsername(username: String): Future[User] = userDao.findByUsername(username)
 
+  def findByEmail(email: String): Future[User] = userDao.findByEmail(email)
+
   def update(user: User): Future[UpdateResult] = userDao.update(user)
 
   def save(user: User) = userDao.save(user)
