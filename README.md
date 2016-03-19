@@ -1,13 +1,13 @@
 # Scalongo  [![Build Status](https://travis-ci.org/iozozturk/scalongo.svg)](https://travis-ci.org/iozozturk/scalongo)
 
-This is a sample seed project showcasing new scala driver for MongoDb on Play Framework 2.4.6
+This is a sample seed project showcasing new scala driver for MongoDb on Play Framework 2.5.0
 
 You may also check **scalongo-android** project (seed android application client) compatible with scalongo
 
 ### What is this repository for? ###
 
 * Bootstrap your Play Application with MongoDb
-* Play Framework 2.4.6
+* Play Framework 2.5.0
 * No frontend implemented
 * REST backend for all kind of your SPA or mobile applications
 

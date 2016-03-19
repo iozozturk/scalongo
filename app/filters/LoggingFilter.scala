@@ -1,14 +1,16 @@
 package filters
 
+import akka.stream.Materializer
+import com.google.inject.Inject
 import play.api.Logger
 import play.api.mvc._
-import scala.concurrent.Future
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Created by ismet on 16/12/15.
   */
-class LoggingFilter extends Filter {
+class LoggingFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
   def apply(nextFilter: RequestHeader => Future[Result])
            (requestHeader: RequestHeader): Future[Result] = {
@@ -26,4 +28,5 @@ class LoggingFilter extends Filter {
       result.withHeaders("Request-Time" -> requestTime.toString)
     }
   }
+
 }

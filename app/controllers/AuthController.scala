@@ -6,14 +6,11 @@ import actions.SecureAction
 import com.github.t3hnar.bcrypt._
 import com.google.inject.Inject
 import com.mongodb.MongoWriteException
-import forms.AuthForms
+import forms.AuthForms.{LoginData, SignupData}
 import models.{Session, User}
-import play.api.Play.current
-import play.api.data.Form
-import play.api.i18n.Messages.Implicits._
 import play.api.i18n.MessagesApi
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import services.{SessionService, UserService}
 
@@ -27,54 +24,66 @@ class AuthController @Inject()(userService: UserService,
                                secureAction: SecureAction,
                                val messagesApi: MessagesApi) extends Controller {
 
-  def signup = Action.async(BodyParser { implicit request => parse.form(AuthForms.signupForm, onErrors = { errorForm: Form[AuthForms.SignupData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
+  def signup = Action.async { implicit request =>
+    val rawBody: JsValue = request.body.asJson.get
+    try {
+      val signupData: SignupData = rawBody.validate[SignupData].get
+      val user = User(
+        UUID.randomUUID().toString,
+        signupData.name,
+        signupData.email,
+        signupData.username,
+        signupData.password.bcrypt,
+        System.currentTimeMillis())
 
-    val signupData = request.body
-
-    val user = User(
-      UUID.randomUUID().toString,
-      signupData.name,
-      signupData.email,
-      signupData.username,
-      signupData.password.bcrypt,
-      System.currentTimeMillis())
-
-    userService.save(user).map((_) => {
-      Ok
-    }).recoverWith {
-      case e: MongoWriteException => Future {
-        Forbidden
+      userService.save(user).map((_) => {
+        Ok
+      }).recoverWith {
+        case e: MongoWriteException => Future {
+          Forbidden
+        }
+        case _ => Future {
+          Forbidden
+        }
       }
-      case _ => Future {
-        Forbidden
+    } catch {
+      case e: Exception => Future {
+        BadRequest
       }
     }
-
   }
 
-  def login = Action.async(BodyParser { implicit request => parse.form(AuthForms.loginForm, onErrors = { errorForm: Form[AuthForms.LoginData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
-    val loginData = request.body
-    userService.findByUsername(loginData.username).map((user: User) => {
-      if (loginData.password.isBcrypted(user.password)) {
-        val sessionId: String = UUID.randomUUID().toString
-        val currentTimeMillis: Long = System.currentTimeMillis()
-        val session: Session = models.Session(
-          sessionId,
-          user._id,
-          request.remoteAddress,
-          request.headers.get("User-Agent").get,
-          currentTimeMillis,
-          currentTimeMillis
-        )
-        sessionService.save(session)
-        val response = Map("sessionId" -> sessionId)
-        Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
-      } else {
-        Unauthorized
+  def login = Action.async { implicit request =>
+    val rawBody: JsValue = request.body.asJson.get
+    try {
+      val loginData = rawBody.validate[LoginData].get
+
+      userService.findByUsername(loginData.username).map((user: User) => {
+        if (loginData.password.isBcrypted(user.password)) {
+          val sessionId: String = UUID.randomUUID().toString
+          val currentTimeMillis: Long = System.currentTimeMillis()
+          val session: Session = models.Session(
+            sessionId,
+            user._id,
+            request.remoteAddress,
+            request.headers.get("User-Agent").get,
+            currentTimeMillis,
+            currentTimeMillis
+          )
+          sessionService.save(session)
+          val response = Map("sessionId" -> sessionId)
+          Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
+        } else {
+          Unauthorized
+        }
+      }).recoverWith {
+        case e: IllegalStateException => Future {
+          Forbidden
+        }
       }
-    }).recoverWith {
-      case e: IllegalStateException => Future {
-        Forbidden
+    } catch {
+      case e: Exception => Future {
+        BadRequest
       }
     }
   }
