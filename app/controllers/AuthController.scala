@@ -54,7 +54,7 @@ class AuthController @Inject()(userService: UserService,
 
   def login = Action.async(BodyParser { implicit request => parse.form(AuthForms.loginForm, onErrors = { errorForm: Form[AuthForms.LoginData] => BadRequest(errorForm.errorsAsJson) })(request) }) { implicit request =>
     val loginData = request.body
-    userService.findByEmail(loginData.username).map((user: User) => {
+    userService.findByUsername(loginData.username).map((user: User) => {
       if (loginData.password.isBcrypted(user.password)) {
         val sessionId: String = UUID.randomUUID().toString
         val currentTimeMillis: Long = System.currentTimeMillis()
