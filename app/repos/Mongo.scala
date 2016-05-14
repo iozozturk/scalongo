@@ -1,4 +1,4 @@
-package services
+package repos
 
 import com.google.inject.{Inject, Singleton}
 import org.mongodb.scala.{MongoClient, MongoDatabase}

@@ -4,7 +4,7 @@ import com.google.inject.Inject
 import com.mongodb.client.model.IndexOptions
 import com.mongodb.client.model.Sorts._
 import play.Logger
-import services.Mongo
+import repos.Mongo
 
 
 /**
@@ -18,10 +18,7 @@ class InitSetup @Inject()(mongo: Mongo) {
 
   def defineIndexes(): Unit = {
     val options: IndexOptions = new IndexOptions().unique(true)
-//    mongo.db.getCollection("user").createIndex(ascending("username"), options).subscribe((s: String) => {
-//      Logger.info("username index created on User collection")
-//    })
-    mongo.db.getCollection("user").createIndex(ascending("email"), options).subscribe((s: String) => {
+    mongo.db.getCollection("users").createIndex(ascending("email"), options).subscribe((s: String) => {
       Logger.info("email index created on User collection")
     })
   }

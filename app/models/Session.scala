@@ -1,20 +1,17 @@
 package models
 
+import _root_.common.JsonExtensions._
+import models.common.{DocumentModelFactory, Entity}
+import play.api.libs.json.JsObject
+
 /**
   * Created by ismet on 06/12/15.
   */
-case class Session(
-                    _id: String,
-                    userId: String,
-                    ip: String,
-                    userAgent: String,
-                    timestamp: Long,
-                    lastActivity: Long
-                  )
+case class Session(json: JsObject) extends Entity[Session] {
+  override val This = Session
+  def token = json.getAs[String]("token")
 
-object Session {
-
-  import play.api.libs.json.Json
-
-  implicit val userFormat = Json.format[Session]
+  def userId = json.getAs[String]("userId")
 }
+
+object Session extends DocumentModelFactory[Session]

@@ -28,13 +28,16 @@ class AuthController @Inject()(userService: UserService,
     val rawBody: JsValue = request.body.asJson.get
     try {
       val signupData: SignupData = rawBody.validate[SignupData].get
-      val user = User(
-        UUID.randomUUID().toString,
-        signupData.name,
-        signupData.email,
-        signupData.username,
-        signupData.password.bcrypt,
-        System.currentTimeMillis())
+
+      val userObj = Json.obj(
+        "_id" -> UUID.randomUUID().toString,
+        "name" -> signupData.name,
+        "email" -> signupData.email,
+        "username" -> signupData.username,
+        "password" -> signupData.password.bcrypt,
+        "timestamp" -> System.currentTimeMillis())
+
+      val user = User(userObj)
 
       userService.save(user).map((_) => {
         Ok
@@ -62,14 +65,14 @@ class AuthController @Inject()(userService: UserService,
         if (loginData.password.isBcrypted(user.password)) {
           val sessionId: String = UUID.randomUUID().toString
           val currentTimeMillis: Long = System.currentTimeMillis()
-          val session: Session = models.Session(
-            sessionId,
-            user._id,
-            request.remoteAddress,
-            request.headers.get("User-Agent").get,
-            currentTimeMillis,
-            currentTimeMillis
-          )
+          val session: Session = models.Session(Json.obj(
+            "_id" -> sessionId,
+            "userId" -> user._id,
+            "ip" -> request.remoteAddress,
+            "userAgent" -> request.headers.get("User-Agent").get,
+            "timestamp" -> currentTimeMillis,
+            "timeUpdate" -> currentTimeMillis
+          ))
           sessionService.save(session)
           val response = Map("sessionId" -> sessionId)
           Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))

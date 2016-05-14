@@ -1,24 +1,24 @@
 package services
 
 import com.google.inject.Inject
-import daos.UserDao
 import models.User
 import org.mongodb.scala.result.UpdateResult
+import repos.UserRepo
 
 import scala.concurrent.Future
 
 /**
   * Created by ismet on 06/12/15.
   */
-class UserService @Inject()(userDao: UserDao) {
-  def find(userId: String): Future[User] = userDao.find(userId)
+class UserService @Inject()(userRepo: UserRepo) {
+  def findById(userId: String): Future[User] = userRepo.findById(userId)
 
-  def findByUsername(username: String): Future[User] = userDao.findByUsername(username)
+  def findByUsername(username: String): Future[User] = userRepo.findByUsername(username)
 
-  def findByEmail(email: String): Future[User] = userDao.findByEmail(email)
+  def findByEmail(email: String): Future[User] = userRepo.findByEmail(email)
 
-  def update(user: User): Future[UpdateResult] = userDao.update(user)
+  def update(user: User): Future[UpdateResult] = userRepo.update(user)
 
-  def save(user: User) = userDao.save(user)
+  def save(user: User) = userRepo.save(user)
 
 }

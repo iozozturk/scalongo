@@ -1,6 +1,6 @@
 name := "scalongo"
 
-version := "1.0"
+version := "2.0"
 
 lazy val `scalongo` = (project in file(".")).enablePlugins(PlayScala)
 
@@ -14,6 +14,8 @@ unmanagedResourceDirectories in Test <+= baseDirectory(_ / "target/web/public/te
 
 resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 
-libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "1.0.1"
-
-libraryDependencies += "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.5"
+libraryDependencies ++= Seq(
+  "org.mongodb.scala" %% "mongo-scala-driver" % "1.1.1",
+  "org.scala-lang.modules" %% "scala-async" % "0.9.5",
+  "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.5"
+)
