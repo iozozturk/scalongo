@@ -26,69 +26,46 @@ class AuthController @Inject()(userService: UserService,
 
   def signup = Action.async { implicit request =>
     val rawBody: JsValue = request.body.asJson.get
-    try {
-      val signupData: SignupData = rawBody.validate[SignupData].get
+    val signupData: SignupData = rawBody.validate[SignupData].get
 
-      val userObj = Json.obj(
-        "_id" -> UUID.randomUUID().toString,
-        "name" -> signupData.name,
-        "email" -> signupData.email,
-        "username" -> signupData.username,
-        "password" -> signupData.password.bcrypt,
-        "timestamp" -> System.currentTimeMillis())
+    val userObj = Json.obj(
+      "_id" -> UUID.randomUUID().toString,
+      "name" -> signupData.name,
+      "email" -> signupData.email,
+      "username" -> signupData.username,
+      "password" -> signupData.password.bcrypt,
+      "timestamp" -> System.currentTimeMillis())
 
-      val user = User(userObj)
+    val user = User(userObj)
 
-      userService.save(user).map((_) => {
-        Ok
-      }).recoverWith {
-        case e: MongoWriteException => Future {
-          Forbidden
-        }
-        case _ => Future {
-          Forbidden
-        }
-      }
-    } catch {
-      case e: Exception => Future {
-        BadRequest
-      }
-    }
+    userService.save(user).map((_) => {
+      Ok
+    })
   }
 
   def login = Action.async { implicit request =>
     val rawBody: JsValue = request.body.asJson.get
-    try {
-      val loginData = rawBody.validate[LoginData].get
+    val loginData = rawBody.validate[LoginData].get
 
-      userService.findByUsername(loginData.username).map((user: User) => {
-        if (loginData.password.isBcrypted(user.password)) {
-          val sessionId: String = UUID.randomUUID().toString
-          val currentTimeMillis: Long = System.currentTimeMillis()
-          val session: Session = models.Session(Json.obj(
-            "_id" -> sessionId,
-            "userId" -> user._id,
-            "ip" -> request.remoteAddress,
-            "userAgent" -> request.headers.get("User-Agent").get,
-            "timestamp" -> currentTimeMillis,
-            "timeUpdate" -> currentTimeMillis
-          ))
-          sessionService.save(session)
-          val response = Map("sessionId" -> sessionId)
-          Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
-        } else {
-          Unauthorized
-        }
-      }).recoverWith {
-        case e: IllegalStateException => Future {
-          Forbidden
-        }
+    userService.findByUsername(loginData.username).map((user: User) => {
+      if (loginData.password.isBcrypted(user.password)) {
+        val sessionId: String = UUID.randomUUID().toString
+        val currentTimeMillis: Long = System.currentTimeMillis()
+        val session: Session = models.Session(Json.obj(
+          "_id" -> sessionId,
+          "userId" -> user._id,
+          "ip" -> request.remoteAddress,
+          "userAgent" -> request.headers.get("User-Agent").get,
+          "timestamp" -> currentTimeMillis,
+          "timeUpdate" -> currentTimeMillis
+        ))
+        sessionService.save(session)
+        val response = Map("sessionId" -> sessionId)
+        Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
+      } else {
+        Unauthorized
       }
-    } catch {
-      case e: Exception => Future {
-        BadRequest
-      }
-    }
+    })
   }
 
   def securedSampleAction = secureAction { implicit request =>
