@@ -27,10 +27,10 @@ class SecureAction @Inject()(sessionService: SessionService,
         .findUserAndSession(c.value)
         .map(tuple => Right(new UserRequest[A](tuple._2, tuple._1, request)))
         .recover {
-          case NonFatal(_) => Left(Results.Forbidden)
+          case NonFatal(_) => Left(Results.Unauthorized)
         }
     }.getOrElse(Future {
-      Left(Results.Forbidden)
+      Left(Results.Unauthorized)
     })
 
   }
