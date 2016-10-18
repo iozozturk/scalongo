@@ -1,8 +1,10 @@
+package controllers
+
 import org.scalatestplus.play.{OneAppPerSuite, PlaySpec}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-class ApplicationSpec extends PlaySpec with OneAppPerSuite {
+class ApplicationControllerTest extends PlaySpec with OneAppPerSuite {
 
   "Application" should {
 
