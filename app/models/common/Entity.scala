@@ -11,9 +11,9 @@ trait Entity[This <: Entity[This]] extends DocumentModel {
 
   def idSelector = Json.obj("_id" -> _id)
 
-  def timestamp = json.getAs[Long]("timestamp")
+  def timestamp = json.getAs[JsObject]("timestamp").getAs[String]("$numberLong").toLong
 
-  def timeUpdate = json.getAs[Long]("timeUpdate")
+  def timeUpdate = json.getAs[JsObject]("timeUpdate").getAs[String]("$numberLong").toLong
 
 }
 
