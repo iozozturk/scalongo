@@ -1,6 +1,7 @@
 package models.common
 
 import common.ConvertibleToJson
+import common.JsonExtensions.ForJsValue
 import play.api.libs.json._
 
 /**
@@ -8,7 +9,11 @@ import play.api.libs.json._
   */
 abstract class DocumentModel extends ConvertibleToJson {
   def json: JsObject
-  final def toJson = json
+  final def toJson = {
+    val docTimestamp = json.getAs[JsObject]("timestamp").getAs[String]("$numberLong")
+    val parsedTimestamp = JsNumber(BigDecimal(docTimestamp))
+    json - "password" - "timestamp" +("timestamp", parsedTimestamp)
+  }
 }
 
 abstract class DocumentModelFactory[T] extends (JsObject => T) {
