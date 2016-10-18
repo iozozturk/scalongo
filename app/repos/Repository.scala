@@ -30,7 +30,7 @@ abstract class Repository[E <: Entity[E] : DocumentModelFactory] {
   }
 
   def update(item: E): Future[UpdateResult] = {
-    collection.upsert(item.json)
+    collection.partialUpdate(Json.obj("_id" -> item._id), item.json)
   }
 
   def save(item: E): Future[Completed] = {

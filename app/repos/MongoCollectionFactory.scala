@@ -41,12 +41,11 @@ class MongoCollectionFactory @Inject()(mongo: Mongo) {
       coll.insertOne(org.mongodb.scala.Document(data.toString())).head()
     }
 
-    def upsert(data: JsObject): Future[UpdateResult] = async {
-      val currentData = await(find(Json.obj("_id" -> "1")))
-      await(_updateOne(Json.obj("_id" -> "1"), data, upsert = true))
-    }
-
-    def bulkUpsert(data: Seq[JsObject]) = data.map(upsert)
+    //TODO: FIX
+    //    def upsert(data: JsObject): Future[UpdateResult] = async {
+    //      val currentData = await(find(Json.obj("_id" -> "1")))
+    //      await(_updateOne(Json.obj("_id" -> "1"), data, upsert = true))
+    //    }
 
     def partialUpdate(selector: JsObject, data: JsObject) = _updateOne(selector, data, upsert = false)
 
