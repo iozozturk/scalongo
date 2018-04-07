@@ -8,9 +8,6 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Created by ismet on 16/12/15.
-  */
 class ExceptionFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
   def apply(nextFilter: RequestHeader => Future[Result])
@@ -19,7 +16,7 @@ class ExceptionFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
     nextFilter(requestHeader).map { result =>
       result
     } transform (byPassResult, logError) recover {
-      case e: MongoWriteException => Results.Forbidden
+      case _: MongoWriteException => Results.Forbidden
       case e: Exception => Results.InternalServerError(e.getMessage)
       case _ => Results.InternalServerError
     }

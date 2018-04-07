@@ -6,10 +6,6 @@ import com.mongodb.client.model.Sorts._
 import play.Logger
 import repos.Mongo
 
-
-/**
-  * Created by ismet on 16/12/15.
-  */
 class InitSetup @Inject()(mongo: Mongo) {
 
   def preMessages(): Unit = {

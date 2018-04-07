@@ -1,33 +1,42 @@
 package services
 
 import com.google.inject.Inject
+import com.mongodb.client.result.{DeleteResult, UpdateResult}
+import common.AppLogger
 import models.{Session, User}
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import org.mongodb.scala.Completed
+import org.mongodb.scala.bson.ObjectId
 import repos.{SessionRepo, UserRepo}
 
 import scala.async.Async._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Created by ismet on 20/12/15.
-  */
-class SessionService @Inject()(sessionRepo: SessionRepo, userRepo: UserRepo) {
-  def find(sessionId: String): Future[Session] = sessionRepo.findById(sessionId)
+class SessionService @Inject()(sessionRepo: SessionRepo, userRepo: UserRepo)
+                              (implicit val executionContext: ExecutionContext) extends AppLogger {
 
-  def findUserAndSession(sessionId: String): Future[(Session, User)] = async {
-    val session = await(find(sessionId))
-    val user = await(userRepo.findById(session.userId))
-    sessionRepo.updateLastActivity(sessionId)
-    (session, user)
+  def find(token: String): Future[Option[Session]] = sessionRepo.findByToken(token)
+
+  def findUserAndSession(token: String): Future[Option[(Session, User)]] = async {
+    val session: Option[Session] = await(find(token))
+    if (session.isDefined) {
+      val user = await(userRepo.findById(session.get.userId)).get
+      sessionRepo.updateLastActivity(token)
+      Some((session.get, user))
+    } else {
+      logger.info(s"session not found, session=$token")
+      None
+    }
   }
 
   def findByUserId(userId: String): Future[Seq[Session]] = sessionRepo.findByUserId(userId)
 
-  def save(session: Session) = sessionRepo.save(session)
+  def save(userId:ObjectId, ip:String, userAgent:String,token:String): Future[Completed] ={
+    sessionRepo.save(Session(token,userId,userAgent,ip))
+  }
 
-  def delete(sessionId: String) = sessionRepo.delete(sessionId)
+  def delete(sessionId: String): Future[DeleteResult] = sessionRepo.delete(sessionId)
 
-  def updateLastActivity(sessionId: String) = sessionRepo.updateLastActivity(sessionId)
+  def updateLastActivity(sessionId: String): Future[UpdateResult] = sessionRepo.updateLastActivity(sessionId)
 
-  def setToken(sessionId: String, token: String) = sessionRepo.setToken(sessionId, token)
+  def setToken(sessionId: String, token: String): Future[UpdateResult] = sessionRepo.setToken(sessionId, token)
 }

@@ -5,67 +5,65 @@ import java.util.UUID
 import actions.SecureAction
 import com.github.t3hnar.bcrypt._
 import com.google.inject.Inject
-import com.mongodb.MongoWriteException
-import forms.AuthForms.{LoginData, SignupData}
-import models.{Session, User}
-import play.api.i18n.MessagesApi
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import play.api.libs.json.{JsValue, Json}
+import common.AppLogger
+import common.JsonExtensions.ForJsValue
+import mail.MailService
+import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.mvc._
-import services.{SessionService, UserService}
+import services.{PassResetService, SessionService, UserService}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
-/**
-  * Created by ismet on 13/12/15.
-  */
 class AuthController @Inject()(userService: UserService,
                                sessionService: SessionService,
                                secureAction: SecureAction,
-                               val messagesApi: MessagesApi) extends Controller {
+                               mailService: MailService,
+                               passResetService: PassResetService)
+                              (implicit val executionContext: ExecutionContext) extends InjectedController with AppLogger {
 
   def signup = Action.async { implicit request =>
-    val rawBody: JsValue = request.body.asJson.get
-    val signupData: SignupData = rawBody.validate[SignupData].get
+    val body: JsValue = request.body.asJson.get
 
-    val userObj = Json.obj(
-      "_id" -> UUID.randomUUID().toString,
-      "name" -> signupData.name,
-      "email" -> signupData.email,
-      "username" -> signupData.username,
-      "password" -> signupData.password.bcrypt,
-      "timestamp" -> System.currentTimeMillis())
+    val name = (body \ "name").as[String]
+    val email = (body \ "email").as[String]
+    val password = (body \ "password").as[String].bcrypt
 
-    val user = User(userObj)
-
-    userService.save(user).map((_) => {
+    userService.save(name, email, password).map((user) => {
+      passResetService.sendActivateAccountMail(user)
       Ok
     })
   }
 
   def login = Action.async { implicit request =>
-    val rawBody: JsValue = request.body.asJson.get
-    val loginData = rawBody.validate[LoginData].get
+    val body: JsValue = request.body.asJson.get.as[JsObject]
+    val email = body.getAs[String]("email")
+    val password = body.getAs[String]("password")
 
-    userService.findByUsername(loginData.username).map((user: User) => {
-      if (loginData.password.isBcrypted(user.password)) {
-        val sessionId: String = UUID.randomUUID().toString
-        val currentTimeMillis: Long = System.currentTimeMillis()
-        val session: Session = models.Session(Json.obj(
-          "_id" -> sessionId,
-          "userId" -> user._id,
-          "ip" -> request.remoteAddress,
-          "userAgent" -> request.headers.get("User-Agent").get,
-          "timestamp" -> currentTimeMillis,
-          "timeUpdate" -> currentTimeMillis
-        ))
-        sessionService.save(session)
-        val response = Map("sessionId" -> sessionId)
-        Ok(Json.toJson(response)).withCookies(Cookie("sessionId", sessionId))
-      } else {
+    userService.findByEmail(email).map { user =>
+      if (user.isEmpty) {
+        logger.info(s"login blocked, reason=user_not_found, user=$email")
         Unauthorized
+      } else {
+        if (!user.get.active) {
+          logger.info(s"login blocked, reason=inactive_account, user=$email")
+          Unauthorized
+        } else if (password.isBcrypted(user.get.password)) {
+          val sessionId: String = UUID.randomUUID().toString
+          sessionService.save(user.get._id, request.remoteAddress, request.headers.get("User-Agent").get, sessionId)
+          val responseObj = Json.obj("sessionId" -> sessionId, "user" -> user.get)
+          Ok(responseObj).withCookies(Cookie("sessionId", sessionId))
+        } else {
+          logger.info(s"login blocked, reason=wrong_pass, user=$email")
+          Unauthorized
+        }
       }
-    })
+    }.recover {
+      case e =>
+        logger.info(s"login blocked, reason=${e.getMessage}")
+        e.printStackTrace()
+        Unauthorized
+    }
   }
 
   def securedSampleAction = secureAction { implicit request =>
@@ -77,5 +75,55 @@ class AuthController @Inject()(userService: UserService,
     Ok.discardingCookies(DiscardingCookie("sessionId"))
   }
 
+  def requestResetPassword(email: String) = Action { implicit request =>
+    userService.findByEmail(email) andThen {
+      case Success(user) =>
+        if (user.isDefined)
+          passResetService.save(email).map { resetObj =>
+            passResetService.sendResetRequestMail(user.get, resetObj)
+          }
+        else {
+          logger.error(s"user not found with email=$email")
+        }
+      case Failure(e) =>
+        logger.error(s"user not found with email:$email, message:${e.getMessage}")
+        e.printStackTrace()
+    }
+    Accepted
+  }
+
+  def resetPassword(id: String) = Action.async { implicit request =>
+    val body: JsValue = request.body.asJson.get.as[JsObject]
+    val password = body.getAs[String]("password")
+
+
+    passResetService.findIfNotUsed(id).flatMap { resetObj =>
+      if (resetObj.isDefined) {
+        passResetService.useResetRequest(id)
+        userService.findByEmail(resetObj.get.email).flatMap { user =>
+          passResetService.sendPassChangeMail(user.get, resetObj.get)
+          userService.changePasword(user.get._id, password).map(_ => Ok)
+        }
+      } else {
+        logger.error(s"reset password for resetId=$id not found")
+        Future {
+          Forbidden
+        }
+      }
+    }
+  }
+
+  def activateAccount(activationId: String) = Action.async { implicit request =>
+    userService.findByActivationId(activationId).map { user =>
+      if (user.isDefined) {
+        passResetService.sendUserActivatedMail(user.get)
+        userService.activateUser(user.get._id)
+        Ok
+      } else {
+        logger.info(s"user not found, activationId=$activationId")
+        NotFound
+      }
+    }
+  }
 
 }
