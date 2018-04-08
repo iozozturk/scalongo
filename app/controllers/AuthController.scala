@@ -13,7 +13,6 @@ import play.api.mvc._
 import services.{PassResetService, SessionService, UserService}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class AuthController @Inject()(userService: UserService,
                                sessionService: SessionService,
@@ -75,27 +74,25 @@ class AuthController @Inject()(userService: UserService,
     Ok.discardingCookies(DiscardingCookie("sessionId"))
   }
 
-  def requestResetPassword(email: String) = Action { implicit request =>
-    userService.findByEmail(email) andThen {
-      case Success(user) =>
-        if (user.isDefined)
-          passResetService.save(email).map { resetObj =>
-            passResetService.sendResetRequestMail(user.get, resetObj)
-          }
-        else {
-          logger.error(s"user not found with email=$email")
+  def requestResetPassword(email: String) = Action.async { implicit request =>
+    userService.findByEmail(email).flatMap { user =>
+      if (user.isDefined)
+        passResetService.save(email).map { resetObj =>
+          passResetService.sendResetRequestMail(user.get, resetObj)
+          Ok
         }
-      case Failure(e) =>
-        logger.error(s"user not found with email:$email, message:${e.getMessage}")
-        e.printStackTrace()
+      else {
+        logger.error(s"user not found with email=$email")
+        Future {
+          NotFound
+        }
+      }
     }
-    Accepted
   }
 
   def resetPassword(id: String) = Action.async { implicit request =>
     val body: JsValue = request.body.asJson.get.as[JsObject]
     val password = body.getAs[String]("password")
-
 
     passResetService.findIfNotUsed(id).flatMap { resetObj =>
       if (resetObj.isDefined) {

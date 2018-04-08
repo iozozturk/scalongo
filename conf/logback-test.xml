@@ -35,20 +35,19 @@
         </rollingPolicy>
         <encoder>
             <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} %message%n</pattern>
+            <!-- this quadruples logging throughput todo change to false before prod-->
         </encoder>
-        <!-- this quadruples logging throughput todo change to false before prod-->
         <immediateFlush>true</immediateFlush>
     </appender>
 
-    <logger name="play" level="INFO"/>
-    <logger name="application" level="DEBUG"/>
-    <logger name="controllers" level="DEBUG"/>
-    <logger name="services" level="DEBUG"/>
-    <logger name="repos" level="DEBUG"/>
-    <logger name="filters" level="DEBUG"/>
-    <logger name="bootstrap" level="DEBUG"/>
-    <logger name="mail" level="DEBUG"/>
-
+    <logger name="play" level="WARN"/>
+    <logger name="application" level="WARN"/>
+    <logger name="controllers" level="WARN"/>
+    <logger name="services" level="WARN"/>
+    <logger name="repos" level="WARN"/>
+    <logger name="filters" level="WARN"/>
+    <logger name="bootstrap" level="WARN"/>
+    <logger name="mail" level="WARN"/>
     <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF"/>
 
     <!-- additivity=false ensures access log data only goes to the access log -->
@@ -56,7 +55,7 @@
         <appender-ref ref="ACCESS_FILE"/>
     </logger>
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="FILE"/>
         <appender-ref ref="ASYNCSTDOUT"/>
     </root>

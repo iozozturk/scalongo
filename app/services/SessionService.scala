@@ -28,10 +28,10 @@ class SessionService @Inject()(sessionRepo: SessionRepo, userRepo: UserRepo)
     }
   }
 
-  def findByUserId(userId: String): Future[Seq[Session]] = sessionRepo.findByUserId(userId)
+  def findByUserId(userId: ObjectId): Future[Seq[Session]] = sessionRepo.findByUserId(userId)
 
-  def save(userId:ObjectId, ip:String, userAgent:String,token:String): Future[Completed] ={
-    sessionRepo.save(Session(token,userId,userAgent,ip))
+  def save(userId: ObjectId, ip: String, userAgent: String, token: String): Future[Completed] = {
+    sessionRepo.save(Session(token, userId, userAgent, ip))
   }
 
   def delete(sessionId: String): Future[DeleteResult] = sessionRepo.delete(sessionId)

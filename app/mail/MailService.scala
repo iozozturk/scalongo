@@ -23,9 +23,12 @@ class MailService @Inject()(WS:WSClient, config:Configuration) extends AppLogger
     logger.info(s"Sending mail to:$to with subject: $subject")
 
     //todo improve logging on error response from mailgun
-    val response = WS.url(url).withAuth("api", apiKey, WSAuthScheme.BASIC).post(mailData).onComplete {
-      case Success(value) =>  logger.info(s"Mailgun response: ${value.json}")
-      case Failure(f) => logger.error(s"Sending mail failed with: ${f.getMessage}")
+    val mailEnabled = config.get[Boolean]("mailgun.enabled")
+    if (mailEnabled) {
+      val response: Unit = WS.url(url).withAuth("api", apiKey, WSAuthScheme.BASIC).post(mailData).onComplete {
+        case Success(value) => logger.info(s"Mailgun response: ${value.json}")
+        case Failure(f) => logger.error(s"Sending mail failed with: ${f.getMessage}")
+      }
     }
 
   }

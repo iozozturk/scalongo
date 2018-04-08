@@ -6,6 +6,7 @@ import com.google.inject.{Inject, Singleton}
 import com.mongodb.client.model.Updates.set
 import com.mongodb.client.result.{DeleteResult, UpdateResult}
 import models.Session
+import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.{Completed, MongoCollection}
 
@@ -32,7 +33,7 @@ class SessionRepo @Inject()(val mongo: Mongo)(implicit val executionContext: Exe
     collection.deleteOne(equal("_id", id)).toFuture()
   }
 
-  def findByUserId(userId: String): Future[Seq[Session]] = {
+  def findByUserId(userId: ObjectId): Future[Seq[Session]] = {
     collection.find(equal("userId", userId)).toFuture()
   }
 

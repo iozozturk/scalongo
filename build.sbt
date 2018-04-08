@@ -22,5 +22,8 @@ resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 libraryDependencies ++= Seq(
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.2.1",
   "org.scala-lang.modules" %% "scala-async" % "0.9.5",
-  "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.5"
+  "com.github.t3hnar" % "scala-bcrypt_2.11" % "2.5",
+  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % "test"
 )
+
+javaOptions in Test += "-Dconfig.file=conf/application-test.conf"
