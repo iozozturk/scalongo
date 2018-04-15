@@ -42,12 +42,6 @@
 
     <logger name="play" level="INFO"/>
     <logger name="application" level="DEBUG"/>
-    <logger name="controllers" level="DEBUG"/>
-    <logger name="services" level="DEBUG"/>
-    <logger name="repos" level="DEBUG"/>
-    <logger name="filters" level="DEBUG"/>
-    <logger name="bootstrap" level="DEBUG"/>
-    <logger name="mail" level="DEBUG"/>
 
     <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF"/>
 

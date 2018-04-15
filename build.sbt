@@ -27,3 +27,5 @@ libraryDependencies ++= Seq(
 )
 
 javaOptions in Test += "-Dconfig.file=conf/application-test.conf"
+javaOptions in Test += "-Dlogger.file=conf/test-logger.xml"
+parallelExecution in Test := false

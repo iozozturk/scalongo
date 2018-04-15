@@ -42,12 +42,6 @@
 
     <logger name="play" level="WARN"/>
     <logger name="application" level="WARN"/>
-    <logger name="controllers" level="WARN"/>
-    <logger name="services" level="WARN"/>
-    <logger name="repos" level="WARN"/>
-    <logger name="filters" level="WARN"/>
-    <logger name="bootstrap" level="WARN"/>
-    <logger name="mail" level="WARN"/>
     <logger name="com.gargoylesoftware.htmlunit.javascript" level="OFF"/>
 
     <!-- additivity=false ensures access log data only goes to the access log -->
