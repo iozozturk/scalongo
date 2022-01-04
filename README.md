@@ -5,6 +5,8 @@ This is a sample seed project showcasing new scala driver for MongoDb on Play Fr
 
 Best suitable for your REST backends, Single Page Application(SPA) backends
 
+<a href="https://www.buymeacoffee.com/ismet" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
 ### What is this repository for? ###
 
 * Bootstrap your Play Application with MongoDb
